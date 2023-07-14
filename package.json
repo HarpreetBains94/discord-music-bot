@@ -1,0 +1,24 @@
+{
+  "name": "discord-music-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for converting spotify/apple music links to youtube videos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HarpreetBains94/discord-music-bot.git"
+  },
+  "author": "Harpreet Bains",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HarpreetBains94/discord-music-bot/issues"
+  },
+  "homepage": "https://github.com/HarpreetBains94/discord-music-bot#readme",
+  "dependencies": {
+    "discord.js": "^14.11.0",
+    "spotify-url-info": "^3.2.5",
+    "youtube-search-api": "^1.2.0"
+  }
+}
