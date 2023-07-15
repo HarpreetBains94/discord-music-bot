@@ -106,13 +106,20 @@ client.on('messageCreate', async (message) => {
     }
   }
   if (query === '') {
+    console.log(`Failed query build: ${message.content} - User: ${message.author.username}`);
     return;
   }
   if (query === 'Invalid search query') {
     message.channel.send(query);
+    console.log(`Failed query build: ${message.content} - User: ${message.author.username}`);
     return;
   }
   try {
+    const randInt = Math.floor(Math.random() * 500);
+    if (randInt === 420 || randInt === 69) {
+      message.channel.send('Ew, get better taste...');
+    }
+    console.log(`Fetching query: ${query} - User: ${message.author.username}`);
     const youtubeLink = await youtubeWrapper.getVideoLinkForQuery(query);
     message.channel.send(youtubeLink);
   } catch (err) {
