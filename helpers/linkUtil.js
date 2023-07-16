@@ -6,6 +6,6 @@ module.exports = {
   },
 
   isSpotifyLink: (maybeLink) => {
-    return maybeLink.includes('open.spotify.com');
+    return maybeLink.includes('open.spotify.com/track/');
   }
 }
