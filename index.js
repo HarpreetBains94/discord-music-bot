@@ -129,21 +129,6 @@ client.on('interactionCreate', async (interaction) => {
       content: `${user} you ${modifier} ${compliment}`
     });
   }
-  if (interaction.commandName === 'compliment') {
-    const user = interaction.options.getUser('user');
-    console.log(`${interaction.user.username} is complimenting ${user.username}`);
-    if (user.username === process.env.DOMS_USERNAME) {
-      interaction.reply({
-        content: `Unfortunately i can't think of anything nice to say about ${user}. Are you sure you didn't mean to /bully them?`
-      });
-      return;  
-    }
-    const modifier = CMODIFIER[Math.floor(Math.random()*CMODIFIER.length)];
-    const compliment = COMPLIMENT[Math.floor(Math.random()*COMPLIMENT.length)];
-    interaction.reply({
-      content: `${user} you ${modifier} ${compliment}`
-    });
-  }
   if (interaction.commandName === 'end-argument') {
     const user = interaction.options.getUser('user');
     const op = interaction.user;
@@ -163,10 +148,10 @@ client.on('interactionCreate', async (interaction) => {
    } else if (op.username === process.env.MY_USERNAME) {
      winner = op;
    }
-    console.log(`${op.username} is arguing with ${user.username} and ${winner} is winning`);
+    console.log(`${op.username} is arguing with ${user.username} and ${winner.username} is winning`);
     const calc = CALCULATIONS[Math.floor(Math.random()*CALCULATIONS.length)];
     interaction.reply({
-      content: `${calc} I've decided that ${winner.username} is the winner`
+      content: `${calc} I've decided that ${winner} is the winner`
     });
   }
 })
