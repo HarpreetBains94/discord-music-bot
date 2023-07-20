@@ -151,7 +151,7 @@ client.on('interactionCreate', async (interaction) => {
     console.log(`${op.username} is arguing with ${user.username} and ${winner.username} is winning`);
     const calc = CALCULATIONS[Math.floor(Math.random()*CALCULATIONS.length)];
     interaction.reply({
-      content: `${calc} I've decided that ${winner} is the correct. Now please stop arguing and do something productive with your time.`
+      content: `${calc} I've decided that ${winner} is correct. Now please stop arguing and do something productive with your time.`
     });
   }
 })
