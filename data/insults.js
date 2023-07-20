@@ -71,7 +71,7 @@ const IMODIFIER = [
   'unrefined',
   'simple',
   'crude',
-  'rudimentery',
+  'rudimentary',
   'undeveloped',
   'naive',
   'churlish',
@@ -156,7 +156,8 @@ const IMODIFIER = [
   'no bitch having',
   'socks and sandles wearing',
   'fat',
-  'democratically elected'
+  'democratically elected',
+  'baldheaded'
 ];
 const INSULT = [
   'dingus',
