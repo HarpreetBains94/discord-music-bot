@@ -172,15 +172,10 @@ client.on('messageCreate', async (message) => {
     });
   } catch (err) {
     console.log(err);
-    message.channel.send('OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(There was an issue with the Spotify API)');
+    message.channel.send(`OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(${err.message})`);
     return;
   }
   if (query === '') {
-    console.log(`Failed query build: ${message.content} - User: ${message.author.username}`);
-    message.channel.send("OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(I couldn't find what you were looking for)");
-    return;
-  }
-  if (query === 'Invalid search query') {
     console.log(`Failed query build: ${message.content} - User: ${message.author.username}`);
     message.channel.send("OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(I couldn't find what you were looking for)");
     return;
