@@ -10,11 +10,14 @@ module.exports = class SpotifyWrapper {
     if (link.includes('open')) {
       return link.split('/track/')[1].split('?')[0];
     }
+    // This is to handle spotifys new shortened links
+    // since they redirect to a page that actually has the song id I
+    // get the redirected page and get the id from there
     var data = await axios.get(link);
     if (data.data.includes('open.spotify.com/track/')) {
       return data.data.split('open.spotify.com/track/')[1].split('?')[0];
     }
-    throw new Error('Invalid Spotify Song Url')
+    return null;
   }
 
   async getYoutubeSearchQueryForMessage(message) {
@@ -29,6 +32,7 @@ module.exports = class SpotifyWrapper {
     } catch (e) {
       throw e;
     }
+    if (data == null) return null;
     if (!data || !data.name || !data.artists || data.artists.length === 0) {
       throw new Error('Invalid search query');
     }
@@ -46,8 +50,11 @@ module.exports = class SpotifyWrapper {
     let data;
     try {
       songId = await this.getSongId(link);
-      if (!songId) {
+      if (songId === '') {
         throw new Error('Invalid Spotify link');
+      }
+      if (songId == null) {
+        return null
       }
     } catch (e) {
       console.log(e);
