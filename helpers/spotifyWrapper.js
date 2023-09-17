@@ -6,6 +6,17 @@ const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 let accessToken = '';
 
 module.exports = class SpotifyWrapper {
+  async getSongId(link) {
+    if (link.includes('open')) {
+      return link.split('/track/')[1].split('?')[0];
+    }
+    var data = await axios.get(link);
+    if (data.data.includes('open.spotify.com/track/')) {
+      return data.data.split('open.spotify.com/track/')[1].split('?')[0];
+    }
+    throw new Error('Invalid Spotify Song Url')
+  }
+
   async getYoutubeSearchQueryForMessage(message) {
     let data;
     try {
@@ -34,7 +45,7 @@ module.exports = class SpotifyWrapper {
     let songId;
     let data;
     try {
-      songId = link.split('/track/')[1].split('?')[0];
+      songId = await this.getSongId(link);
       if (!songId) {
         throw new Error('Invalid Spotify link');
       }
