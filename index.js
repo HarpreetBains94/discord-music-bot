@@ -1,4 +1,4 @@
-const { Client, IntentsBitField, Routes, REST } = require('discord.js');
+const { Client, IntentsBitField, Routes, REST, AttachmentBuilder } = require('discord.js');
 
 const SpotifyWrapper = require('./helpers/spotifyWrapper');
 const AppleMusicWrapper = require('./helpers/appleWrapper');
@@ -159,13 +159,23 @@ client.on('interactionCreate', async (interaction) => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   let wrapper = null;
-  let query = null;
   if (isSpotifyLink(message.content)) {
     wrapper = new SpotifyWrapper();
   } else if (isAppleMusicLink(message.content)) {
     wrapper = new AppleMusicWrapper();
   }
-  if (wrapper === null) return;
+  if (wrapper !== null) {
+    await doMusicThing(wrapper, message);
+    return;
+  };
+  if (messageReferencesPoland(message)) {
+    await annoyBort(message);
+    return;
+  }
+});
+
+async function doMusicThing(wrapper, message) {
+  let query = null;
   try {
     await wrapper.getYoutubeSearchQueryForMessage(message).then((q) => {
       query = q;
@@ -197,4 +207,14 @@ client.on('messageCreate', async (message) => {
     message.channel.send('OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(There was an issue with the youtube API)');
     return;
   }
-});
+}
+
+function messageReferencesPoland(message) {
+  return ['poland', 'krakow', 'kraków'].some(word => message.content.toLocaleLowerCase().includes(word));
+}
+
+async function annoyBort(message) {
+  await message.channel.send({
+    files: [new AttachmentBuilder('./images/polan.png')]
+  });
+}
