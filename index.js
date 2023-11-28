@@ -210,7 +210,7 @@ async function doMusicThing(wrapper, message) {
 }
 
 function messageReferencesPoland(message) {
-  return ['poland', 'krakow', 'kraków'].some(word => message.content.toLocaleLowerCase().includes(word));
+  return ['poland', 'krakow', 'kraków', 'polish'].some(word => message.content.toLocaleLowerCase().includes(word));
 }
 
 async function annoyBort(message) {
