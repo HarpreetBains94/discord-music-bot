@@ -210,7 +210,10 @@ async function doMusicThing(wrapper, message) {
 }
 
 function messageReferencesPoland(message) {
-  return ['poland', 'krakow', 'kraków', 'polish'].some(word => message.content.toLocaleLowerCase().includes(word));
+  if (message.author.username !== process.env.BORTEKS_USERNAME) {
+    return false;
+  }
+  return ['poland', 'krakow', 'kraków', 'polish', 'kurwa'].some(word => message.content.toLocaleLowerCase().includes(word));
 }
 
 async function annoyBort(message) {
