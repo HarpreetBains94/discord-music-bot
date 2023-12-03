@@ -172,6 +172,9 @@ client.on('messageCreate', async (message) => {
     await annoyBort(message);
     return;
   }
+  if (message.author.username === process.env.JINS_USERNAME) {
+    return callJinASwiftie(message);
+  }
 });
 
 async function doMusicThing(wrapper, message) {
@@ -220,4 +223,12 @@ async function annoyBort(message) {
   await message.channel.send({
     files: [new AttachmentBuilder('./images/polan.png')]
   });
+}
+
+async function callJinASwiftie(message) {
+  if (Math.floor(Math.random() * 20) === 0) {
+    await message.channel.send({
+      files: [new AttachmentBuilder('./images/swiftie.png')]
+    });
+  }
 }
