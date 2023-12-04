@@ -228,6 +228,7 @@ async function annoyBort(message) {
 async function callJinASwiftie(message) {
   if (Math.floor(Math.random() * 20) === 0) {
     await message.channel.send({
+      content: `${message.author} this u?`,
       files: [new AttachmentBuilder('./images/swiftie.png')]
     });
   }
