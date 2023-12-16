@@ -7,6 +7,7 @@ const { isSpotifyLink, isAppleMusicLink } = require('./helpers/linkUtil');
 const { IMODIFIER, INSULT } = require('./data/insults');
 const { CMODIFIER, COMPLIMENT } = require('./data/compliments');
 const { CALCULATIONS } = require('./data/arguments');
+const ImageMaker = require('./helpers/imageMaker');
 
 // ############################
 // Initial Setup
@@ -55,6 +56,20 @@ async function setupCommands() {
       name: 'user',
       description: 'User to compliment',
       type: 6,
+      required: true,
+    }],
+  }, {
+    name: 'quote',
+    description: 'Generate a quote image',
+    options: [{
+      name: 'author',
+      description: 'Quote Author',
+      type: 6,
+      required: true,
+    }, {
+      name: 'quote',
+      description: 'The Quote',
+      type: 3,
       required: true,
     }],
   }, {
@@ -153,6 +168,42 @@ client.on('interactionCreate', async (interaction) => {
     interaction.reply({
       content: `${calc} I've decided that ${winner} is correct. Now please stop arguing and do something productive with your time.`
     });
+  }
+  if (interaction.commandName === 'quote') {
+    const author = interaction.options.getUser('author');
+    let quote = interaction.options.getString('quote');
+    quote = '"' + quote + '"';
+    const fullAuthor = await interaction.client.users.fetch(author.id);
+    let avatarUrl = fullAuthor.avatarURL({size: 256});
+    // using {imageExtension: 'png'} didnt work for some reason so manually doing here
+    avatarUrl = avatarUrl.replace('.webp', '.png');
+    avatarUrl = avatarUrl.replace('.gif', '.png');
+    avatarUrl = avatarUrl.replace('.jpeg', '.png');
+    avatarUrl = avatarUrl.replace('.jpg', '.png');
+    const quoteLines = [];
+    let currentLine = 0;
+    quote.split(' ').forEach((word, index) => {
+      if (index === 0) {
+        quoteLines[currentLine] = word
+      } else if (quoteLines[currentLine].length < 30) {
+        quoteLines[currentLine] = quoteLines[currentLine] + ' ' + word;
+      } else {
+        currentLine++;
+        quoteLines[currentLine] = word;
+      }
+    });
+    quoteLines.push('- ' + author.username);
+    const imageMaker = new ImageMaker();
+    const filePath = imageMaker.getFilePath();
+    try {
+      await imageMaker.makeImage(avatarUrl, quoteLines, filePath);
+      await interaction.reply({
+        files: [new AttachmentBuilder(filePath)]
+      })
+      imageMaker.deleteQuoteImage(filePath);
+    } catch (err) {
+      console.log(err)
+    }
   }
 })
 
