@@ -224,7 +224,8 @@ client.on('messageCreate', async (message) => {
     return;
   }
   if (message.author.username === process.env.JINS_USERNAME) {
-    return callJinASwiftie(message);
+    await callJinASwiftie(message);
+    return;
   }
 });
 
@@ -277,7 +278,7 @@ async function annoyBort(message) {
 }
 
 async function callJinASwiftie(message) {
-  if (Math.floor(Math.random() * 20) === 0) {
+  if (Math.floor(Math.random() * 50) === 0) {
     await message.channel.send({
       content: `${message.author} this u?`,
       files: [new AttachmentBuilder('./images/swiftie.png')]
