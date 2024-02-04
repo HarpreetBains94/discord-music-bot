@@ -227,6 +227,13 @@ client.on('messageCreate', async (message) => {
     await callJinASwiftie(message);
     return;
   }
+  if (message.author.username === process.env.DAMIANS_USERNAME) {
+    const modifier = IMODIFIER[Math.floor(Math.random()*IMODIFIER.length)];
+    const insult = INSULT[Math.floor(Math.random()*INSULT.length)];
+    await message.channel.send({
+      content: `${message.author.username} you ${modifier} ${insult}`
+    });
+  }
 });
 
 async function doMusicThing(wrapper, message) {
