@@ -321,9 +321,11 @@ function messageReferencesPoland(message) {
 }
 
 async function annoyBort(message) {
-  await message.channel.send({
-    files: [new AttachmentBuilder('./images/polan.png')]
-  });
+  if (Math.floor(Math.random() * 10) === 0) {
+    await message.channel.send({
+      files: [new AttachmentBuilder('./images/polan.png')]
+    });
+  }
 }
 
 async function callJinASwiftie(message) {
