@@ -81,20 +81,6 @@ async function setupCommands() {
       type: 6,
       required: true,
     }],
-  }, {
-    name: 'anon-valentines',
-    description: 'Send an anonymous valentines message',
-    options: [{
-      name: 'valentines',
-      description: 'User to send the valentines to',
-      type: 6,
-      required: true,
-    }, {
-      name: 'message',
-      description: 'Message you want to send them',
-      type: 3,
-      required: true,
-    }],
   }];
 
   await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
@@ -218,34 +204,6 @@ client.on('interactionCreate', async (interaction) => {
     } catch (err) {
       console.log(err)
     }
-  }
-  if (interaction.commandName === 'anon-valentines') {
-    if (interaction.guild.id !== '1007284487358513183') {
-      interaction.reply({
-        content: 'This command is not configured for this server',
-        ephemeral: true,
-      });
-      return;
-    }
-    const valentinesChannel = interaction.guild.channels.cache.get('1205144757601435658');
-    if (!valentinesChannel) {
-      interaction.reply({
-        content: 'This command is not configured for this server',
-        ephemeral: true,
-      });
-      return;
-    }
-    const valentines = interaction.options.getUser('valentines');
-    const message = interaction.options.getString('message');
-    console.log(`/anon-valentines: ${valentines.username} / ${message} - from: ${interaction.user.username}`);
-    valentinesChannel.send({
-      content: `🌹🌹👼🏹💘🌹🌹\n${valentines} you received a valentines.\nYour anonymous admirer wants you to know this:\n"*${message}*"`
-    });
-    interaction.reply({
-      content: "Sending your anonymous valentines message to the valentines channel. Don't worry only you can see this message.",
-      ephemeral: true,
-    });
-    return;
   }
 })
 
