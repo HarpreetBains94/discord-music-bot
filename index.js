@@ -55,6 +55,7 @@ client.once('ready', (c) => {
 });
 
 async function doEasterStuff(channel) {
+  console.log(`sending egg in channel ${channel.id}`);
   const modifier = Math.floor(Math.random() * 10);
   let intro;
   let message;
@@ -92,6 +93,7 @@ async function doEasterStuff(channel) {
 
 async function updateEasterScore(interaction, score) {
   const username = interaction.member.user.username;
+  console.log(`${username} claimed an egg worth ${score}`);
   await interaction.update({
     content: 'Egg has been claimed',
     embeds: [],
@@ -340,16 +342,20 @@ client.on('interactionCreate', async (interaction) => {
       for (let username in jsonData) {
           sortable.push([username, jsonData[username]]);
       }
-
-      sortable.sort((a, b) => {
-          return  b[1] - a[1];
-      });
-
+      
       let message = '';
-
-      sortable.slice(0, 10).forEach((value, index) => {
-        message += `${index + 1}) ${value[0]} - ${value[1]}\n`
-      })
+      if (sortable.length === 0) {
+        message = 'Nobody has claimed any eggs yet :(';
+      } else {
+        sortable.sort((a, b) => {
+            return  b[1] - a[1];
+        });
+  
+  
+        sortable.slice(0, 10).forEach((value, index) => {
+          message += `${index + 1}) ${value[0]} - ${value[1]}\n`
+        });
+      }
 
       const embed = new EmbedBuilder()
         .setColor(0x0099FF)
