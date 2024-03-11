@@ -1,4 +1,4 @@
-const { Client, IntentsBitField, Routes, REST, AttachmentBuilder } = require('discord.js');
+const { Client, IntentsBitField, Routes, REST, AttachmentBuilder, ButtonBuilder, ActionRowBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
 
 const SpotifyWrapper = require('./helpers/spotifyWrapper');
 const AppleMusicWrapper = require('./helpers/appleWrapper');
@@ -8,6 +8,7 @@ const { IMODIFIER, INSULT } = require('./data/insults');
 const { CMODIFIER, COMPLIMENT } = require('./data/compliments');
 const { CALCULATIONS } = require('./data/arguments');
 const ImageMaker = require('./helpers/imageMaker');
+const fs = require("fs");
 
 // ############################
 // Initial Setup
@@ -26,9 +27,95 @@ const client = new Client({
 
 const rest = new REST({version: '10'}).setToken(DISCORD_TOKEN);
 
+const visibleGayborChannels = [
+  '1111410216890806372',
+  '1020428221168222289',
+  '1008550412309246042',
+  '1102992235433300019',
+  '1007447074842873967',
+  '1007708892165312643',
+  '1007704742677450882',
+  '1007324467652993055',
+  '1191806364884947006',
+  '1007313411811581962',
+  '1009191270192779415',
+  '1008791519655886869',
+  '1009203580303048715',
+];
+
 client.once('ready', (c) => {
     console.log(`${c.user.tag} Loaded!`);
+    setInterval(async () => {
+      const channelId = visibleGayborChannels[Math.floor(Math.random()*visibleGayborChannels.length)];
+      const channel = client.channels.cache.get(channelId);
+      if (!!channel && Math.floor(Math.random() * 5) === 0) {
+        await doEasterStuff(channel);
+      }
+    }, 600000);
 });
+
+async function doEasterStuff(channel) {
+  const modifier = Math.floor(Math.random() * 10);
+  let intro;
+  let message;
+  if (modifier < 5) {
+    intro = new ButtonBuilder()
+      .setCustomId('basic-egg')
+      .setLabel('Claim Egg!')
+      .setStyle(ButtonStyle.Primary);
+    message = "🥚 You've found a basic egg! (worth 1 point)";
+  } else if(modifier < 8) {
+    intro = new ButtonBuilder()
+      .setCustomId('multi-egg')
+      .setLabel('Claim Eggs!')
+      .setStyle(ButtonStyle.Primary);
+    message = "🪺 You've found a group of eggs!! (worth 3 points)";
+  } else {
+    intro = new ButtonBuilder()
+      .setCustomId('special-egg')
+      .setLabel('Claim Egg!')
+      .setStyle(ButtonStyle.Primary);
+    message = "🐣 You've found a hatching egg!!! (worth 5 points)";
+  }
+  const row = new ActionRowBuilder()
+    .addComponents(intro);
+  
+  const embed = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle('An Easter Egg Has Appeared!!')
+    .setDescription(message)
+    .setTimestamp()
+  channel.send({
+    embeds: [embed],
+    components: [row]});
+}
+
+async function updateEasterScore(interaction, score) {
+  const username = interaction.member.user.username;
+  await interaction.update({
+    content: 'Egg has been claimed',
+    embeds: [],
+    components: [],
+  });
+  fs.readFile("easterData.json", (error, data) => {
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const jsonData = JSON.parse(data);
+    if (jsonData[username] !== undefined) {
+      jsonData[username] = jsonData[username] + score;
+    } else {
+      jsonData[username] = score;
+    }
+    fs.writeFile("easterData.json", JSON.stringify(jsonData), (error) => {
+      if (error) {
+        console.error(error);
+      }
+    });
+  });
+}
 
 async function setupCommands() {
   const commands = [{
@@ -85,7 +172,21 @@ async function setupCommands() {
 
   await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
     body: commands,
-  })
+  });
+
+  const gayborCommands = [
+  {
+    name: 'easter-score',
+    description: 'See your current score in the Gayborhood Easter Egg Hunt',
+  }, {
+    name: 'easter-scoreboard',
+    description: 'See the top 10 current scores in the Gayborhood Easter Egg Hunt',
+  }];
+
+  // FOR GUILD SPECIFIC COMMANDS
+  await rest.put(Routes.applicationCommands(DISCORD_APP_ID, '1007284487358513183'), {
+    body: gayborCommands,
+  });
 }
 
 setupCommands();
@@ -205,6 +306,67 @@ client.on('interactionCreate', async (interaction) => {
       console.log(err)
     }
   }
+  if (interaction.commandName === 'easter-score') {
+    fs.readFile("easterData.json", async (error, data) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+  
+      const jsonData = JSON.parse(data);
+      const username = interaction.user.username;
+      let message;
+      if (jsonData[username] !== undefined) {
+        message = 'Your current score is ' + jsonData[username];
+      } else {
+        message = 'You have not collected any eggs yet';
+      }
+      await interaction.reply({
+        content: message
+      });
+    });
+  }
+
+  if (interaction.commandName === 'easter-scoreboard') {
+    fs.readFile("easterData.json", async (error, data) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+  
+      const jsonData = JSON.parse(data);
+      
+      let sortable = [];
+      for (let username in jsonData) {
+          sortable.push([username, jsonData[username]]);
+      }
+
+      sortable.sort((a, b) => {
+          return  b[1] - a[1];
+      });
+
+      let message = '';
+
+      sortable.slice(0, 10).forEach((value, index) => {
+        message += `${index + 1}) ${value[0]} - ${value[1]}\n`
+      })
+
+      const embed = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setTitle('Gayborhood Easter Egg Hunt Scoreboard')
+        .setDescription(message);
+      
+      await interaction.reply({
+        embeds: [embed]
+      });
+    });
+  }
+
+  if (interaction.customId === 'basic-egg') await updateEasterScore(interaction, 1);
+
+  if (interaction.customId === 'multi-egg') await updateEasterScore(interaction, 3);
+  
+  if (interaction.customId === 'special-egg') await updateEasterScore(interaction, 5);
 })
 
 client.on('messageCreate', async (message) => {
