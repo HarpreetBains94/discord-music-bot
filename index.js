@@ -51,7 +51,7 @@ client.once('ready', (c) => {
       if (!!channel && Math.floor(Math.random() * 5) === 0) {
         await doEasterStuff(channel);
       }
-    }, 600000);
+    }, 300000);
 });
 
 async function doEasterStuff(channel) {
@@ -170,14 +170,7 @@ async function setupCommands() {
       type: 6,
       required: true,
     }],
-  }];
-
-  await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
-    body: commands,
-  });
-
-  const gayborCommands = [
-  {
+  }, {
     name: 'easter-score',
     description: 'See your current score in the Gayborhood Easter Egg Hunt',
   }, {
@@ -185,10 +178,13 @@ async function setupCommands() {
     description: 'See the top 10 current scores in the Gayborhood Easter Egg Hunt',
   }];
 
-  // FOR GUILD SPECIFIC COMMANDS
-  await rest.put(Routes.applicationCommands(DISCORD_APP_ID, '1007284487358513183'), {
-    body: gayborCommands,
+  await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
+    body: commands,
   });
+  // FOR GUILD SPECIFIC COMMANDS
+  // await rest.put(Routes.applicationCommands(DISCORD_APP_ID, '1007284487358513183'), {
+  //   body: gayborCommands,
+  // });
 }
 
 setupCommands();
