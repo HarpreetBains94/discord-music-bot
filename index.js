@@ -56,27 +56,33 @@ client.once('ready', (c) => {
 
 async function doEasterStuff(channel) {
   console.log(`sending egg in channel ${channel.id}`);
-  const modifier = Math.floor(Math.random() * 10);
+  const modifier = Math.floor(Math.random() * 100);
   let intro;
   let message;
-  if (modifier < 5) {
+  if (modifier < 50) {
     intro = new ButtonBuilder()
       .setCustomId('basic-egg')
       .setLabel('Claim Egg!')
       .setStyle(ButtonStyle.Primary);
     message = "🥚 You've found a basic egg! (worth 1 point)";
-  } else if(modifier < 8) {
+  } else if(modifier < 80) {
     intro = new ButtonBuilder()
       .setCustomId('multi-egg')
       .setLabel('Claim Eggs!')
       .setStyle(ButtonStyle.Primary);
     message = "🪺 You've found a group of eggs!! (worth 3 points)";
-  } else {
+  } else if(modifier < 95) {
     intro = new ButtonBuilder()
       .setCustomId('special-egg')
       .setLabel('Claim Egg!')
       .setStyle(ButtonStyle.Primary);
     message = "🐣 You've found a hatching egg!!! (worth 5 points)";
+  } else {
+    intro = new ButtonBuilder()
+      .setCustomId('super-egg')
+      .setLabel('Claim Eggs!')
+      .setStyle(ButtonStyle.Primary);
+    message = "🐰 You've found the Easter Bunny, they give you 100 eggs as reward!!!!!";
   }
   const row = new ActionRowBuilder()
     .addComponents(intro);
@@ -171,11 +177,14 @@ async function setupCommands() {
       required: true,
     }],
   }, {
-    name: 'easter-score',
-    description: 'See your current score in the Gayborhood Easter Egg Hunt',
+    name: 'ping',
+    description: 'Check if bot is up',
   }, {
     name: 'easter-scoreboard',
     description: 'See the top 10 current scores in the Gayborhood Easter Egg Hunt',
+  }, {
+    name: 'easter-score',
+    description: 'See your current score in the Gayborhood Easter Egg Hunt',
   }];
 
   await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
@@ -364,11 +373,19 @@ client.on('interactionCreate', async (interaction) => {
     });
   }
 
+  if (interaction.commandName === 'ping') {
+    await interaction.reply({
+      content: 'pong',
+    });
+  }
+
   if (interaction.customId === 'basic-egg') await updateEasterScore(interaction, 1);
 
   if (interaction.customId === 'multi-egg') await updateEasterScore(interaction, 3);
   
   if (interaction.customId === 'special-egg') await updateEasterScore(interaction, 5);
+
+  if (interaction.customId === 'super-egg') await updateEasterScore(interaction, 100);
 })
 
 client.on('messageCreate', async (message) => {
