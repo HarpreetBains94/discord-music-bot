@@ -101,7 +101,7 @@ async function updateEasterScore(interaction, score) {
   const username = interaction.member.user.username;
   console.log(`${username} claimed an egg worth ${score}`);
   await interaction.update({
-    content: 'Egg has been claimed',
+    content: '',
     embeds: [],
     components: [],
   });
