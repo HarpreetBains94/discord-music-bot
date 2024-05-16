@@ -239,6 +239,10 @@ client.on('messageCreate', async (message) => {
     await callJinASwiftie(message);
     return;
   }
+  if (message.author.username === process.env.TIVS_USERNAME) {
+    await sendTivCrazyFrog(message);
+    return;
+  }
 });
 
 async function doMusicThing(wrapper, message) {
@@ -296,6 +300,15 @@ async function callJinASwiftie(message) {
     await message.channel.send({
       content: `${message.author} this u?`,
       files: [new AttachmentBuilder('./images/swiftie.png')]
+    });
+  }
+}
+
+async function sendTivCrazyFrog(message) {
+  if (Math.floor(Math.random() * 100) === 0) {
+    await message.channel.send({
+      content: `Hey ${message.author} did you know that crazy frog used to have a penis?`,
+      files: [new AttachmentBuilder('./images/crazy_frog.png')]
     });
   }
 }
