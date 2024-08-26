@@ -71,6 +71,16 @@ async function setupCommands() {
       description: 'The Quote',
       type: 3,
       required: true,
+    }, {
+      name: 'contextpre',
+      description: 'Add Context to the quote, appears before quote',
+      type: 3,
+      required: false,
+    }, {
+      name: 'contextpost',
+      description: 'Add Context to the quote, appears after quote',
+      type: 3,
+      required: false,
     }],
   }, {
     name: 'end-argument',
@@ -179,6 +189,8 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.commandName === 'quote') {
     const author = interaction.options.getUser('author');
     let quote = interaction.options.getString('quote');
+    let contextPre = interaction.options.getString('contextpre');
+    let contextPost = interaction.options.getString('contextpost');
     quote = '"' + quote + '"';
     const fullAuthor = await interaction.client.users.fetch(author.id);
     let avatarUrl = fullAuthor.avatarURL({size: 256});
@@ -187,23 +199,15 @@ client.on('interactionCreate', async (interaction) => {
     avatarUrl = avatarUrl.replace('.gif', '.png');
     avatarUrl = avatarUrl.replace('.jpeg', '.png');
     avatarUrl = avatarUrl.replace('.jpg', '.png');
-    const quoteLines = [];
-    let currentLine = 0;
-    quote.split(' ').forEach((word, index) => {
-      if (index === 0) {
-        quoteLines[currentLine] = word
-      } else if (quoteLines[currentLine].length < 30) {
-        quoteLines[currentLine] = quoteLines[currentLine] + ' ' + word;
-      } else {
-        currentLine++;
-        quoteLines[currentLine] = word;
-      }
-    });
-    quoteLines.push('- ' + author.username);
     const imageMaker = new ImageMaker();
+    const quoteLines = imageMaker.getLinesFromInput(quote, false);
+    const contextPreLines = imageMaker.getLinesFromInput(contextPre, true);
+    const contextPostLines = imageMaker.getLinesFromInput(contextPost, true);
+    const authorLine = ['- ' + author.username];
+    // const finalLines = [...contextPreLines, ...quoteLines, ...contextPostLines, '- ' + author.username];
     const filePath = imageMaker.getFilePath();
     try {
-      await imageMaker.makeImage(avatarUrl, quoteLines, filePath);
+      await imageMaker.makeImage(avatarUrl, contextPreLines, quoteLines, contextPostLines, authorLine, filePath);
       await interaction.reply({
         files: [new AttachmentBuilder(filePath)]
       })
