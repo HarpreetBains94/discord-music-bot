@@ -1,5 +1,4 @@
-const { Client, IntentsBitField, Routes, REST, AttachmentBuilder, ButtonBuilder, ActionRowBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
-
+const { Client, IntentsBitField, Routes, REST, AttachmentBuilder } = require('discord.js');
 const SpotifyWrapper = require('./helpers/spotifyWrapper');
 const AppleMusicWrapper = require('./helpers/appleWrapper');
 const YoutubeWrapper = require('./helpers/youtubeWrapper');
@@ -9,15 +8,12 @@ const { CMODIFIER, COMPLIMENT } = require('./data/compliments');
 const { CALCULATIONS } = require('./data/arguments');
 const ImageMaker = require('./helpers/imageMaker');
 
-const fs = require("fs");
-
 // ############################
 // Initial Setup
 //#############################
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_APP_ID = process.env.DISCORD_APP_ID;
-const VISIBLE_CHANNEL_IDS = process.env.VISIBLE_CHANNEL_IDS.split(',');
 
 const client = new Client({
   intents: [
@@ -31,79 +27,7 @@ const rest = new REST({version: '10'}).setToken(DISCORD_TOKEN);
 
 client.once('ready', (c) => {
     console.log(`${c.user.tag} Loaded!`);
-    setInterval(async () => {
-      const channelId = VISIBLE_CHANNEL_IDS[Math.floor(Math.random()*VISIBLE_CHANNEL_IDS.length)];
-      const channel = client.channels.cache.get(channelId);
-      if (!!channel && Math.floor(Math.random() * 10) === 0) {
-        await doChristmasStuff(channel);
-      }
-    }, 600000);
 });
-
-async function doChristmasStuff(channel) {
-  console.log(`sending gift in channel ${channel.id}`);
-  const modifier = Math.floor(Math.random() * 100);
-  let intro;
-  let message;
-  if (modifier < 50) {
-    intro = new ButtonBuilder()
-      .setCustomId('basic-gift')
-      .setLabel('Claim Gift!')
-      .setStyle(ButtonStyle.Primary);
-    message = "🎁 You've found a basic gift! (worth 1 point)";
-  } else if(modifier < 90) {
-    intro = new ButtonBuilder()
-      .setCustomId('special-gift')
-      .setLabel('Claim Gift!')
-      .setStyle(ButtonStyle.Primary);
-    message = "💝 You've found a special gift!! (worth 5 points)";
-  } else {
-    intro = new ButtonBuilder()
-      .setCustomId('santa')
-      .setLabel('Claim Gift!')
-      .setStyle(ButtonStyle.Primary);
-    message = "🎅 You've found Santa and helped him collect some gifts. He rewards you with a super gift!!! (worth 10 points)";
-  }
-  const row = new ActionRowBuilder()
-    .addComponents(intro);
-
-  const embed = new EmbedBuilder()
-    .setColor(0x0099FF)
-    .setTitle('A Christmas Gift Has Appeared!!')
-    .setDescription(message)
-    .setTimestamp()
-  channel.send({
-    embeds: [embed],
-    components: [row]});
-}
-
-async function updateChristmasScore(interaction, score) {
-  const user = interaction.member.user;
-  console.log(`${user} claimed an gift worth ${score}`);
-  await interaction.update({
-    content: 'Gift has been claimed',
-    embeds: [],
-    components: [],
-  });
-  fs.readFile("christmasData.json", (error, data) => {
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    const jsonData = JSON.parse(data);
-    if (jsonData[user.username] !== undefined) {
-      jsonData[user.username] = jsonData[user.username] + score;
-    } else {
-      jsonData[user.username] = score;
-    }
-    fs.writeFile("christmasData.json", JSON.stringify(jsonData), (error) => {
-      if (error) {
-        console.error(error);
-      }
-    });
-  });
-}
 
 async function setupCommands() {
   const commands = [{
@@ -169,12 +93,6 @@ async function setupCommands() {
   }, {
     name: 'ping',
     description: 'Check if bot is up',
-  }, {
-    name: 'christmas-scoreboard',
-    description: 'See the top 10 current scores in the Christmas Gift Hunt',
-  }, {
-    name: 'christmas-score',
-    description: 'See your current score in the Christmas Gift Hunt',
   }];
 
   await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
@@ -297,68 +215,6 @@ client.on('interactionCreate', async (interaction) => {
       console.log(err)
     }
   }
-  if (interaction.commandName === 'christmas-score') {
-    fs.readFile("christmasData.json", async (error, data) => {
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      const jsonData = JSON.parse(data);
-      const username = interaction.user.username;
-      let message;
-      if (jsonData[username] !== undefined) {
-        message = 'Your current score is ' + jsonData[username];
-      } else {
-        message = 'You have not collected any gifts yet';
-      }
-      await interaction.reply({
-        content: message
-      });
-    });
-  }
-
-  if (interaction.commandName === 'christmas-scoreboard') {
-    fs.readFile("christmasData.json", async (error, data) => {
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      const jsonData = JSON.parse(data);
-
-      let sortable = [];
-      for (let username in jsonData) {
-          sortable.push([username, jsonData[username]]);
-      }
-
-      let message = '';
-      if (sortable.length === 0) {
-        message = 'Nobody has claimed any gifts yet :(';
-      } else {
-        sortable.sort((a, b) => {
-            return  b[1] - a[1];
-        });
-
-
-        sortable.slice(0, 10).forEach((value, index) => {
-          message += `${index + 1}) ${value[0]} - ${value[1]}\n`
-        });
-      }
-
-      const embed = new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setTitle('Christmas Gift Hunt Scoreboard')
-        .setDescription(message);
-
-      await interaction.reply({
-        embeds: [embed]
-      });
-    });
-  }
-  if (interaction.customId === 'basic-gift') await updateChristmasScore(interaction, 1);
-  if (interaction.customId === 'special-gift') await updateChristmasScore(interaction, 5);
-  if (interaction.customId === 'santa') await updateChristmasScore(interaction, 10);
   if (interaction.commandName === 'ping') {
     await interaction.reply({
       content: 'pong',
