@@ -1,4 +1,5 @@
 const { Client, IntentsBitField, Routes, REST, AttachmentBuilder } = require('discord.js');
+
 const SpotifyWrapper = require('./helpers/spotifyWrapper');
 const AppleMusicWrapper = require('./helpers/appleWrapper');
 const YoutubeWrapper = require('./helpers/youtubeWrapper');
@@ -7,6 +8,7 @@ const { IMODIFIER, INSULT } = require('./data/insults');
 const { CMODIFIER, COMPLIMENT } = require('./data/compliments');
 const { CALCULATIONS } = require('./data/arguments');
 const ImageMaker = require('./helpers/imageMaker');
+const fs = require("fs");
 
 // ############################
 // Initial Setup
@@ -93,20 +95,6 @@ async function setupCommands() {
   }, {
     name: 'ping',
     description: 'Check if bot is up',
-  }, {
-    name: 'anon-valentines',
-    description: 'Send an anonymous valentines message',
-    options: [{
-      name: 'valentines',
-      description: 'User to send the valentines to',
-      type: 6,
-      required: true,
-    }, {
-      name: 'message',
-      description: 'Message you want to send them',
-      type: 3,
-      required: true,
-    }],
   }];
 
   await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
@@ -129,6 +117,10 @@ client.login(DISCORD_TOKEN);
 client.on('interactionCreate', async (interaction) => {
   if (interaction.commandName === 'getvid') {
     const query = interaction.options.getString('query');
+    if(query.split(' ')[0] === 'getmessages') {
+      await getMessages(query, interaction);
+      return;
+    }
     console.log(`/getvid: ${query} - from: ${interaction.user.username}`);
     try {
       const youtubeWrapper = new YoutubeWrapper();
@@ -234,35 +226,48 @@ client.on('interactionCreate', async (interaction) => {
       content: 'pong',
     });
   }
-  if (interaction.commandName === 'anon-valentines') {
-    if (interaction.guild.id !== '1007284487358513183') {
-      interaction.reply({
-        content: 'This command is not configured for this server',
-        ephemeral: true,
-      });
-      return;
-    }
-    const valentinesChannel = interaction.guild.channels.cache.get('1337534584794910771');
-    if (!valentinesChannel) {
-      interaction.reply({
-        content: 'This command is not configured for this server',
-        ephemeral: true,
-      });
-      return;
-    }
-    const valentines = interaction.options.getUser('valentines');
-    const message = interaction.options.getString('message');
-    console.log(`/anon-valentines: ${valentines.username} / ${message} - from: ${interaction.user.username}`);
-    valentinesChannel.send({
-      content: `🌹🌹👼🏹💘🌹🌹\n${valentines} you received a valentines.\nYour anonymous admirer wants you to know this:\n"*${message}*"`
-    });
-    interaction.reply({
-      content: "Sending your anonymous valentines message to the valentines channel. Don't worry only you can see this message.",
-      ephemeral: true,
-    });
-    return;
-  }
 })
+
+async function getMessages(query, interaction) {
+  const channelId = query.split(' ')[1];
+  let pages = query.split(' ')[2];
+  const channel = client.channels.cache.get(channelId);
+  let allMessages;
+  await channel.messages.fetch({ limit: 100 }).then(messages => {
+    allMessages = messages.map(message => {
+      return {
+        id: message.id,
+        timeStamp: new Date(message.createdTimestamp).toISOString(),
+        author: message.author.username,
+        content: message.content,
+      };
+    });
+    console.log(allMessages);
+  });
+  while (pages > 1) {
+    const lastMessageId = allMessages[allMessages.length - 1].id;
+    await channel.messages.fetch({ limit: 100, before: lastMessageId }).then(messages => {
+      allMessages.push(...messages.map(message => {
+        return {
+          id: message.id,
+          timeStamp: new Date(message.createdTimestamp).toISOString(),
+          author: message.author.username,
+          content: message.content,
+        };
+      }));
+    });
+    pages -= 1;
+  }
+  fs.writeFile("D:\\musicBotMessageFetcher.json", JSON.stringify(allMessages), (error) => {
+    if (error) {
+      console.error(error);
+    }
+  });
+  interaction.reply({
+    content: 'done',
+    ephemeral: true,
+  });
+}
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
@@ -276,6 +281,14 @@ client.on('messageCreate', async (message) => {
     await doMusicThing(wrapper, message);
     return;
   };
+  if (messageReferencesPoland(message)) {
+    await annoyBort(message);
+    return;
+  }
+  if (message.author.username === process.env.JINS_USERNAME) {
+    await callJinASwiftie(message);
+    return;
+  }
   if (message.author.username === process.env.TIVS_USERNAME) {
     await sendTivCrazyFrog(message);
     return;
@@ -317,8 +330,32 @@ async function doMusicThing(wrapper, message) {
   }
 }
 
+function messageReferencesPoland(message) {
+  if (message.author.username !== process.env.BORTEKS_USERNAME) {
+    return false;
+  }
+  return ['poland', 'krakow', 'kraków', 'polish', 'kurwa'].some(word => message.content.toLocaleLowerCase().includes(word));
+}
+
+async function annoyBort(message) {
+  if (Math.floor(Math.random() * 10) === 0) {
+    await message.channel.send({
+      files: [new AttachmentBuilder('./images/polan.png')]
+    });
+  }
+}
+
+async function callJinASwiftie(message) {
+  if (Math.floor(Math.random() * 50) === 0) {
+    await message.channel.send({
+      content: `${message.author} this u?`,
+      files: [new AttachmentBuilder('./images/swiftie.png')]
+    });
+  }
+}
+
 async function sendTivCrazyFrog(message) {
-  if (Math.floor(Math.random() * 500) === 0) {
+  if (Math.floor(Math.random() * 100) === 0) {
     await message.channel.send({
       content: `Hey ${message.author} did you know that crazy frog used to have a penis?`,
       files: [new AttachmentBuilder('./images/crazy_frog.png')]
