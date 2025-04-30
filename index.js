@@ -143,10 +143,10 @@ client.on('interactionCreate', async (interaction) => {
       const tvDbWrapper = new TvDbWrapper();
       const components = await tvDbWrapper.getEmbed(query);
       await interaction.reply({
-        embeds: [components.embed],
+        content: components.trailer,
       });
       await interaction.followUp({
-        content: components.trailer,
+        embeds: [components.embed],
       });
     } catch (err) {
       console.log(err);
