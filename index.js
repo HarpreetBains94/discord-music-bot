@@ -2,6 +2,7 @@ const { Client, IntentsBitField, Routes, REST, AttachmentBuilder } = require('di
 const SpotifyWrapper = require('./helpers/spotifyWrapper');
 const AppleMusicWrapper = require('./helpers/appleWrapper');
 const YoutubeWrapper = require('./helpers/youtubeWrapper');
+const TvDbWrapper = require('./helpers/tvDbWrapper');
 const { isSpotifyLink, isAppleMusicLink } = require('./helpers/linkUtil');
 const { IMODIFIER, INSULT } = require('./data/insults');
 const { CMODIFIER, COMPLIMENT } = require('./data/compliments');
@@ -36,6 +37,15 @@ async function setupCommands() {
     options: [{
       name: 'query',
       description: 'Search query for youtube',
+      type: 3,
+      required: true,
+    }],
+  }, {
+    name: 'getmovie',
+    description: 'Return the metadata for the movie that matches your query',
+    options: [{
+      name: 'query',
+      description: 'Search query for TheTVDB',
       type: 3,
       required: true,
     }],
@@ -98,10 +108,6 @@ async function setupCommands() {
   await rest.put(Routes.applicationCommands(DISCORD_APP_ID), {
     body: commands,
   });
-  // FOR GUILD SPECIFIC COMMANDS
-  // await rest.put(Routes.applicationCommands(DISCORD_APP_ID, '1007284487358513183'), {
-  //   body: gayborCommands,
-  // });
 }
 
 setupCommands();
@@ -121,6 +127,26 @@ client.on('interactionCreate', async (interaction) => {
       const youtubeLink = await youtubeWrapper.getVideoLinkForQuery(query);
       interaction.reply({
         content: youtubeLink,
+      });
+    } catch (err) {
+      console.log(err);
+      interaction.reply({
+        content: 'OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(There was an issue with the youtube API)',
+      });
+      return;
+    }
+  }
+  if (interaction.commandName === 'getmovie') {
+    const query = interaction.options.getString('query');
+    console.log(`/getmovie: ${query} - from: ${interaction.user.username}`);
+    try {
+      const tvDbWrapper = new TvDbWrapper();
+      const components = await tvDbWrapper.getEmbed(query);
+      await interaction.reply({
+        embeds: [components.embed],
+      });
+      await interaction.followUp({
+        content: components.trailer,
       });
     } catch (err) {
       console.log(err);
