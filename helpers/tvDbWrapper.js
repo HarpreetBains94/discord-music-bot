@@ -18,20 +18,22 @@ module.exports = class TvDbWrapper {
   }
 
   async getEmbed(query) {
-    const data = await(this.getSynopsisData(query));
-    const embed = new EmbedBuilder()
-      .setTitle(data.tvDb.extended_title)
-      .setAuthor({ name: 'Data sourced from TheTVTB', url: 'https://www.thetvdb.com/' })
-      .setDescription(`Genres: ${data.tvDb.genres.join(', ')}\n\n${data.tvDb.overviews['eng'] || ''}`);
-      return {
-        embed,
-        trailer: data.trailer,
-      };
+    return this.getSynopsisData(query).then((data) => {
+      const embed = new EmbedBuilder()
+        .setTitle(data.tvDb.extended_title)
+        .setAuthor({ name: 'Data sourced from TheTVTB', url: 'https://www.thetvdb.com/' })
+        .setDescription(`Genres: ${data.tvDb.genres.join(', ')}\n\n${data.tvDb.overviews['eng'] || ''}`);
+        return {
+          embed,
+          trailer: data.trailer,
+        };
+    }).catch((err) => {
+      throw err;
+    });
   }
 
-  async getSynopsisData(query) {
+  getSynopsisData(query) {
     return this.login().then((response) => {
-      console.log('success', response.data.data)
       return axios.get(`${URL_BASE}/search?query=${encodeURIComponent(query)}`, {
         headers: `Authorization: Bearer ${response.data.data.token}`
       }).then((response) => {
@@ -56,17 +58,17 @@ module.exports = class TvDbWrapper {
             };
           })
           .catch((err) => {
-            console.log('failed to fetch movie trailer', err)
+            console.log('Failed to fetch movie trailer', err)
             throw new Error('Failed to fetch movie trailer');
           });
 
       }).catch((err) => {
-        console.log('in err');
-        console.log(err);
+        console.log('TVDB search request failed', err);
+        throw new Error('TVDB search request failed');
       });
     }).catch((err) => {
-      console.log('failed to get tvdb token', err);
-      throw new Error('Failed to renew tvdb token');
+      console.log('failed to get TVDB token', err);
+      throw new Error('Failed to renew TVDB token');
     });
   }
 }

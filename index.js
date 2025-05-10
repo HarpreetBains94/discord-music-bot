@@ -151,7 +151,7 @@ client.on('interactionCreate', async (interaction) => {
     } catch (err) {
       console.log(err);
       interaction.reply({
-        content: 'OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(There was an issue with the youtube API)',
+        content: err.message,
       });
       return;
     }
