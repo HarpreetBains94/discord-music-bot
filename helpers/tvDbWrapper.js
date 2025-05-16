@@ -53,7 +53,7 @@ module.exports = class TvDbWrapper {
     
     const tvDbData = movieDataResponse.data.data[0];
 
-    const trailerData = await youtubesearchapi.GetListByKeyword(query + ' trailer', false, 1, {}).catch((err) => {
+    const trailerData = await youtubesearchapi.GetListByKeyword(tvDbData.extended_title + ' trailer', false, 1, {}).catch((err) => {
       console.log('Failed to fetch movie trailer', err)
       throw new Error('Failed to fetch movie trailer');
     });
