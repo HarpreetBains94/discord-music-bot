@@ -20,8 +20,8 @@ module.exports = class TvDbWrapper {
     })
   }
 
-  async getEmbed(query) {
-    return this.getSynopsisData(query).then((data) => {
+  async getEmbed(query, year) {
+    return this.getSynopsisData(query, year).then((data) => {
       const embed = new EmbedBuilder()
         .setTitle(data.tvDbData.extended_title)
         .setAuthor({ name: 'Data sourced from TheTVTB', url: 'https://www.thetvdb.com/' })
@@ -35,9 +35,9 @@ module.exports = class TvDbWrapper {
     });
   }
 
-  async getSynopsisData(query) {
+  async getSynopsisData(query, year) {
     const tokenResponse = await this.login();
-    const movieDataResponse = await axios.get(`${URL_BASE}/search?query=${encodeURIComponent(query)}`, {
+    const movieDataResponse = await axios.get(`${URL_BASE}/search?query=${encodeURIComponent(query)}${year ? '&year=' + encodeURIComponent(year) : ''}&limit=1`, {
       headers: `Authorization: Bearer ${tokenResponse.data.data.token}`
     }).catch((err) => {
       console.log('TVDB search request failed', err);

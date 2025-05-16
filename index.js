@@ -48,6 +48,11 @@ async function setupCommands() {
       description: 'Search query for TheTVDB',
       type: 3,
       required: true,
+    }, {
+      name: 'year',
+      description: 'Year of the movies release',
+      type: 3,
+      required: false,
     }],
   }, {
     name: 'bully',
@@ -138,10 +143,11 @@ client.on('interactionCreate', async (interaction) => {
   }
   if (interaction.commandName === 'getmovie') {
     const query = interaction.options.getString('query');
-    console.log(`/getmovie: ${query} - from: ${interaction.user.username}`);
+    const year = interaction.options.getString('year');
+    console.log(`/getmovie: ${query} (${year}) - from: ${interaction.user.username}`);
     try {
       const tvDbWrapper = new TvDbWrapper();
-      const components = await tvDbWrapper.getEmbed(query);
+      const components = await tvDbWrapper.getEmbed(query, year);
       await interaction.reply({
         content: components.trailer,
       });
