@@ -25,7 +25,7 @@ module.exports = class TvDbWrapper {
       const embed = new EmbedBuilder()
         .setTitle(data.tvDbData.extended_title)
         .setAuthor({ name: 'Data sourced from TheTVTB', url: 'https://www.thetvdb.com/' })
-        .setDescription(`Genres: ${data.tvDbData.genres.join(', ')}\n\n${data.tvDbData.overviews['eng'] || ''}`);
+        .setDescription(`Genres: ${data.tvDbData.genres.join(', ')}\n\n${data.tvDbData.overviews?.eng || ''}`);
         return {
           embed,
           trailer: data.trailer,
