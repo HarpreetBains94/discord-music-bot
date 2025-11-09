@@ -7,5 +7,9 @@ module.exports = {
 
   isSpotifyLink: (maybeLink) => {
     return maybeLink.includes('open.spotify.com/track/') || maybeLink.includes('spotify.link/');
+  },
+
+  isTidalLink: (maybeLink) => {
+    return maybeLink.includes('tidal.com/track/');
   }
 }

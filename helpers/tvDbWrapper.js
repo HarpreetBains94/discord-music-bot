@@ -1,21 +1,24 @@
 const { EmbedBuilder } = require('discord.js');
-const axios = require('axios');
 const youtubesearchapi = require("youtube-search-api");
 
 const TV_DB_API_KEY = process.env.TV_DB_API_KEY;
 const URL_BASE = 'https://api4.thetvdb.com/v4';
 
-var accessToken = '';
-
-// TODO clean up
-
 module.exports = class TvDbWrapper {
-  login() {
-    return axios.post(URL_BASE + '/login', {
-        apikey: TV_DB_API_KEY
+  getToken() {
+    return fetch(URL_BASE + '/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          apikey: TV_DB_API_KEY
+        })
       }
-    ).catch((err) => {
-      console.log('failed to get TVDB token', err);
+    ).then((response) => response.json())
+    .then((data) => data.data.token)
+    .catch((err) => {
+      console.log('Failed to get TVDB token', err);
       throw new Error('Failed to renew TVDB token');
     })
   }
@@ -36,22 +39,25 @@ module.exports = class TvDbWrapper {
   }
 
   async getSynopsisData(query, year) {
-    const tokenResponse = await this.login();
-    const movieDataResponse = await axios.get(`${URL_BASE}/search?query=${encodeURIComponent(query)}${year ? '&year=' + encodeURIComponent(year) : ''}&limit=1`, {
-      headers: `Authorization: Bearer ${tokenResponse.data.data.token}`
+    const token = await this.getToken();
+    const tvDbData = await fetch(`${URL_BASE}/search?query=${encodeURIComponent(query)}${year ? '&year=' + encodeURIComponent(year) : ''}&limit=1`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }).then((response => {
+      if (!response.ok) {
+        throw new Error('Response not ok');
+      }
+      return response.json()
+    })).then((data) => {
+      if (data.data.length === 0) {
+        throw new Error('TVDB search returned no results');
+      }
+      return data.data[0];
     }).catch((err) => {
       console.log('TVDB search request failed', err);
       throw new Error('TVDB search request failed');
     });
-
-    if (movieDataResponse.status !== 200) {
-      throw new Error('TVDB search request failed');
-    }
-    if (movieDataResponse.data.data.length === 0) {
-      throw new Error('TVDB search returned no results');
-    }
-    
-    const tvDbData = movieDataResponse.data.data[0];
 
     const trailerData = await youtubesearchapi.GetListByKeyword(tvDbData.extended_title + ' trailer', false, 1, {}).catch((err) => {
       console.log('Failed to fetch movie trailer', err)

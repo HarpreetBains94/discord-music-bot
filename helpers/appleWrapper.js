@@ -14,8 +14,4 @@ module.exports = class AppleMusicWrapper {
       }, 5000)
     })
   }
-
-  async getTrackData(link) {
-    return await appleMusic(link);
-  }
 }

@@ -3,11 +3,12 @@ const SpotifyWrapper = require('./helpers/spotifyWrapper');
 const AppleMusicWrapper = require('./helpers/appleWrapper');
 const YoutubeWrapper = require('./helpers/youtubeWrapper');
 const TvDbWrapper = require('./helpers/tvDbWrapper');
-const { isSpotifyLink, isAppleMusicLink } = require('./helpers/linkUtil');
+const { isSpotifyLink, isAppleMusicLink, isTidalLink } = require('./helpers/linkUtil');
 const { IMODIFIER, INSULT } = require('./data/insults');
 const { CMODIFIER, COMPLIMENT } = require('./data/compliments');
 const { CALCULATIONS } = require('./data/arguments');
 const ImageMaker = require('./helpers/imageMaker');
+const TidalWrapper = require('./helpers/tidalWrapper');
 
 // ############################
 // Initial Setup
@@ -225,7 +226,6 @@ client.on('interactionCreate', async (interaction) => {
     quote = '"' + quote + '"';
     const fullAuthor = await interaction.client.users.fetch(author.id);
     let avatarUrl = fullAuthor.avatarURL({size: 256});
-    // using {imageExtension: 'png'} didnt work for some reason so manually doing here
     avatarUrl = avatarUrl.replace('.webp', '.png');
     avatarUrl = avatarUrl.replace('.gif', '.png');
     avatarUrl = avatarUrl.replace('.jpeg', '.png');
@@ -235,7 +235,6 @@ client.on('interactionCreate', async (interaction) => {
     const contextPreLines = imageMaker.getLinesFromInput(contextPre, true);
     const contextPostLines = imageMaker.getLinesFromInput(contextPost, true);
     const authorLine = ['- ' + author.username];
-    // const finalLines = [...contextPreLines, ...quoteLines, ...contextPostLines, '- ' + author.username];
     const filePath = imageMaker.getFilePath();
     try {
       await imageMaker.makeImage(avatarUrl, contextPreLines, quoteLines, contextPostLines, authorLine, filePath);
@@ -261,15 +260,13 @@ client.on('messageCreate', async (message) => {
     wrapper = new SpotifyWrapper();
   } else if (isAppleMusicLink(message.content)) {
     wrapper = new AppleMusicWrapper();
+  } else if (isTidalLink(message.content)) {
+    wrapper = new TidalWrapper();
   }
   if (wrapper !== null) {
     await doMusicThing(wrapper, message);
     return;
   };
-  if (message.author.username === process.env.TIVS_USERNAME) {
-    await sendTivCrazyFrog(message);
-    return;
-  }
 });
 
 async function doMusicThing(wrapper, message) {
@@ -304,14 +301,5 @@ async function doMusicThing(wrapper, message) {
     console.log(err);
     message.channel.send('OOPSIE WOOPSIE!! Uwu we made a fucky wucky\n(There was an issue with the youtube API)');
     return;
-  }
-}
-
-async function sendTivCrazyFrog(message) {
-  if (Math.floor(Math.random() * 500) === 0) {
-    await message.channel.send({
-      content: `Hey ${message.author} did you know that crazy frog used to have a penis?`,
-      files: [new AttachmentBuilder('./images/crazy_frog.png')]
-    });
   }
 }

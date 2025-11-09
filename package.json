@@ -5,22 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "pm2 start pm2.config.js",
-    "start-local": "nodemon -r dotenv/config ./index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-local": "nodemon -r dotenv/config ./index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/HarpreetBains94/discord-music-bot.git"
-  },
-  "author": "Harpreet Bains",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/HarpreetBains94/discord-music-bot/issues"
-  },
-  "homepage": "https://github.com/HarpreetBains94/discord-music-bot#readme",
   "dependencies": {
     "@discordjs/rest": "~1.7.1",
-    "axios": "^1.9.0",
     "discord-api-types": "~0.37.48",
     "discord.js": "~14.19.2",
     "dotenv": "~16.3.1",

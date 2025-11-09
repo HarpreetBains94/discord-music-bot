@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 const spotifyClientId = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
@@ -13,9 +11,9 @@ module.exports = class SpotifyWrapper {
     // This is to handle spotifys new shortened links
     // since they redirect to a page that actually has the song id I
     // get the redirected page and get the id from there
-    var data = await axios.get(link);
-    if (data.data.includes('open.spotify.com/track/')) {
-      return data.data.split('open.spotify.com/track/')[1].split('?')[0];
+    var data = await fetch(link).then((res) => res.json());
+    if (data.includes('open.spotify.com/track/')) {
+      return data.split('open.spotify.com/track/')[1].split('?')[0];
     }
     return null;
   }
@@ -33,7 +31,7 @@ module.exports = class SpotifyWrapper {
       throw e;
     }
     if (data == null) return null;
-    if (!data || !data.name || !data.artists || data.artists.length === 0) {
+    if (!data?.name || !data?.artists?.length) {
       throw new Error('Invalid search query');
     }
     let query = data.name;
@@ -61,31 +59,40 @@ module.exports = class SpotifyWrapper {
       throw new Error('Invalid Spotify link');
     }
     try {
-      await axios.get('https://api.spotify.com/v1/tracks/' + songId, {
-        headers: `Authorization: Bearer ${this.accessToken}`
-      }).then((response) => {
-        data = response.data
+      await fetch(`https://api.spotify.com/v1/tracks/${songId}`, {
+        headers: {'Authorization': `Bearer ${this.accessToken}`}
+      }).then((response) => response.json())
+      .then((responseData) => {
+        data = responseData;
       });
     } catch (e) {
       console.log(e);
-      if (e.response.status === 401) {
+      if (e.response?.status === 401) {
         throw new Error('Spotify Auth failed');
       } 
-      throw new Error ("Something went wrong fetching the track data from Spotify");
+      throw new Error('Something went wrong fetching the track data from Spotify');
     }
     return data;
   }
 
   async fetchNewAccessToken() {
-    await axios.post('https://accounts.spotify.com/api/token',
-      `grant_type=client_credentials&client_id=${spotifyClientId}&client_secret=${spotifyClientSecret}`,
+    await fetch('https://accounts.spotify.com/api/token',
       {
-        headers: 'Content-Type: application/x-www-form-urlencoded'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          'grant_type': 'client_credentials',
+          'client_id': spotifyClientId,
+          'client_secret': spotifyClientSecret
+        })
       }
-    ).then((response) => {
-      this.accessToken = response.data.access_token;
+    ).then((response) => response.json())
+    .then((data) => {
+      this.accessToken = data.access_token;
     }).catch((err) => {
-      console.log('failed to get spotify token', err);
+      console.log('Failed to get spotify token', err);
       throw new Error('Failed to renew spotify auth token');
     })
   }
