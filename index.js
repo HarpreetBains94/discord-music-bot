@@ -166,12 +166,6 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.commandName === 'bully') {
     const victim = interaction.options.getUser('victim');
     console.log(`${interaction.user.username} is bullying ${victim.username}`);
-    if (victim.username === process.env.MY_USERNAME) {
-      interaction.reply({
-        content: `${victim} is a perfect angel, leave him alone`
-      });
-      return;  
-    }
     const modifier = IMODIFIER[Math.floor(Math.random()*IMODIFIER.length)];
     const insult = INSULT[Math.floor(Math.random()*INSULT.length)];
     interaction.reply({
@@ -181,12 +175,6 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.commandName === 'compliment') {
     const user = interaction.options.getUser('user');
     console.log(`${interaction.user.username} is complimenting ${user.username}`);
-    if (user.username === process.env.DOMS_USERNAME) {
-      interaction.reply({
-        content: `Unfortunately i can't think of anything nice to say about ${user}. Are you sure you didn't mean to /bully them?`
-      });
-      return;  
-    }
     const modifier = CMODIFIER[Math.floor(Math.random()*CMODIFIER.length)];
     const compliment = COMPLIMENT[Math.floor(Math.random()*COMPLIMENT.length)];
     interaction.reply({
@@ -202,16 +190,6 @@ client.on('interactionCreate', async (interaction) => {
     } else {
       winner = op;
     }
-    if (op.username === process.env.DOMS_USERNAME) {
-       winner = user;
-    } else if (user.username === process.env.DOMS_USERNAME) {
-      winner = op;
-    }
-    if (user.username === process.env.MY_USERNAME) {
-      winner = user;
-   } else if (op.username === process.env.MY_USERNAME) {
-     winner = op;
-   }
     console.log(`${op.username} is arguing with ${user.username} and ${winner.username} is winning`);
     const calc = CALCULATIONS[Math.floor(Math.random()*CALCULATIONS.length)];
     interaction.reply({
