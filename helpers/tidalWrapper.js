@@ -5,7 +5,7 @@ let accessToken = '';
 
 module.exports = class TidalWrapper {
   getSongId(link) {
-    return link.split('tidal.com/track/')[1].split('/')[0];
+    return link.split('/track/')[1].split('/')[0].split('?')[0];
   }
 
   async getYoutubeSearchQueryForMessage(message) {

@@ -10,6 +10,6 @@ module.exports = {
   },
 
   isTidalLink: (maybeLink) => {
-    return maybeLink.includes('tidal.com/track/');
+    return maybeLink.includes('tidal.com/track/') || maybeLink.includes('tidal.com/browse/track/');
   }
 }
