@@ -70,7 +70,7 @@ module.exports = class TmdbWrapper {
       throw new Error('TMDB details fetch request failed');
     });
 
-    const trailerData = await youtubesearchapi.GetListByKeyword(tmdbData.title + (year ? year + ' ' : '') + ' trailer', false, 1, {}).catch((err) => {
+    const trailerData = await youtubesearchapi.GetListByKeyword(tmdbData.title + ' ' + tmdbData.release_date.substr(0, 4) + ' trailer', false, 1, {}).catch((err) => {
       console.log('Failed to fetch movie trailer', err)
       throw new Error('Failed to fetch movie trailer');
     });
