@@ -2,7 +2,7 @@ const { Client, IntentsBitField, Routes, REST, AttachmentBuilder } = require('di
 const SpotifyWrapper = require('./helpers/spotifyWrapper');
 const AppleMusicWrapper = require('./helpers/appleWrapper');
 const YoutubeWrapper = require('./helpers/youtubeWrapper');
-const TvDbWrapper = require('./helpers/tvDbWrapper');
+const TmdbWrapper = require('./helpers/tmdbWrapper');
 const { isSpotifyLink, isAppleMusicLink, isTidalLink } = require('./helpers/linkUtil');
 const { IMODIFIER, INSULT } = require('./data/insults');
 const { CMODIFIER, COMPLIMENT } = require('./data/compliments');
@@ -147,13 +147,13 @@ client.on('interactionCreate', async (interaction) => {
     const year = interaction.options.getString('year');
     console.log(`/getmovie: ${query} (${year}) - from: ${interaction.user.username}`);
     try {
-      const tvDbWrapper = new TvDbWrapper();
-      const components = await tvDbWrapper.getEmbed(query, year);
+      const tmdbWrapper = new TmdbWrapper();
+      const components = await tmdbWrapper.getEmbed(query, year);
       await interaction.reply({
         content: components.trailer,
       });
       await interaction.followUp({
-        embeds: [components.embed],
+        embeds: [components.embed]
       });
     } catch (err) {
       console.log(err);
