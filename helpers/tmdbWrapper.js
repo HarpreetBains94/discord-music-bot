@@ -117,7 +117,7 @@ module.exports = class TmdbWrapper {
       return '😀';
     }
     if (score > 6) {
-      return '😊';
+      return '🙂';
     }
     if (score > 5) {
       return '😐';
