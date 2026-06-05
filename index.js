@@ -42,6 +42,20 @@ async function setupCommands() {
       required: true,
     }],
   }, {
+    name: 'randomNumber',
+    description: 'Return a random number between the start and end',
+    options: [{
+      name: 'start',
+      description: 'Start number (inclusive)',
+      type: 4,
+      required: true,
+    }, {
+      name: 'end',
+      description: 'End number (inclusive)',
+      type: 4,
+      required: true,
+    }],
+  }, {
     name: 'getmovie',
     description: 'Return the metadata for the movie that matches your query',
     options: [{
@@ -141,6 +155,13 @@ client.on('interactionCreate', async (interaction) => {
       });
       return;
     }
+  }
+  if (interaction.commandName === 'randomNumber') {
+    const start = interaction.options.getInteger('start');
+    const end = interaction.options.getInteger('end');
+    interaction.reply({
+      content: `Randomly selecting a number between ${start} and ${end} (both inclusive).\nSelected number: ${Math.floor(Math.random() * (end - start) ) + start}`
+    })
   }
   if (interaction.commandName === 'getmovie') {
     const query = interaction.options.getString('query');
