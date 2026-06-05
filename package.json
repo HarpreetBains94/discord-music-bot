@@ -8,12 +8,12 @@
     "start-local": "nodemon -r dotenv/config ./index.js"
   },
   "dependencies": {
-    "@discordjs/rest": "~1.7.1",
+    "@discordjs/rest": "^2.6.1",
     "discord-api-types": "~0.37.48",
-    "discord.js": "~14.19.2",
+    "discord.js": "^14.26.4",
     "dotenv": "~16.3.1",
     "pureimage": "^0.4.13",
-    "uuid": "^9.0.1",
-    "youtube-search-api": "~1.2.0"
+    "uuid": "^14.0.0",
+    "youtube-search-api": "^2.0.1"
   }
 }

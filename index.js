@@ -42,7 +42,7 @@ async function setupCommands() {
       required: true,
     }],
   }, {
-    name: 'randomNumber',
+    name: 'randomnumber',
     description: 'Return a random number between the start and end',
     options: [{
       name: 'start',
