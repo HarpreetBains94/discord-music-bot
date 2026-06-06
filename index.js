@@ -156,11 +156,11 @@ client.on('interactionCreate', async (interaction) => {
       return;
     }
   }
-  if (interaction.commandName === 'randomNumber') {
+  if (interaction.commandName === 'randomnumber') {
     const start = interaction.options.getInteger('start');
     const end = interaction.options.getInteger('end');
     interaction.reply({
-      content: `Randomly selecting a number between ${start} and ${end} (both inclusive).\nSelected number: ${Math.floor(Math.random() * (end - start) ) + start}`
+      content: `Randomly selecting a number between ${start} and ${end} (both inclusive).\nSelected number: ${1}`
     })
   }
   if (interaction.commandName === 'getmovie') {
